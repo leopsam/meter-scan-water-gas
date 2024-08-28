@@ -1,10 +1,12 @@
 import { Router } from 'express';
-import { getAllMeasure } from '../controllers/measure-controller';
-//import { validateSchema } from "../middlewares/schemaValidation-middleware";
-//import { signInSchema } from "../schema/auth-schemas";
+import { getAllMeasure, measurePost } from '../controllers/measure-controller';
+import { validateSchema } from '../middlewares/schemaValidation-middleware';
+import { measureSchema } from '../schema/measure-schemas';
 
 const measureRoutes = Router();
 
-measureRoutes.get('/all', /*validateSchema(signInSchema),*/ getAllMeasure);
+measureRoutes
+  .get('/all', getAllMeasure) //retirar depois
+  .post('/upload', validateSchema(measureSchema), measurePost);
 
 export { measureRoutes };

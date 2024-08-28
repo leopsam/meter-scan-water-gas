@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import measureService from './../services/measure-services';
-//import httpStatus from "http-status";
-//import { User } from "../types/user-type";
+
+interface UploadRequestBody {
+  image: string;
+  customer_code: string;
+  measure_datetime: Date;
+  measure_type: 'WATER' | 'GAS';
+}
 
 export async function getAllMeasure(req: Request, res: Response) {
   try {
@@ -12,16 +17,20 @@ export async function getAllMeasure(req: Request, res: Response) {
   }
 }
 
-/*
-export async function usersPost(req: Request, res: Response) {
-  const userData: User = req.body;
+export async function measurePost(req: Request, res: Response) {
+  const { image, customer_code, measure_datetime, measure_type } =
+    req.body as UploadRequestBody;
 
   try {
-    await userService.createUser( userData );
-    return res.status(httpStatus.CREATED).send("User created successfully");
+    const ResponseMeasure = await measureService.createMeasure(
+      image,
+      customer_code,
+      measure_datetime,
+      measure_type
+    );
+    return res.status(200).send(ResponseMeasure);
   } catch (err) {
-    console.log(err)
-    return res.status(httpStatus.BAD_REQUEST).send(err);
+    console.log(err);
+    return res.status(400).send(err);
   }
 }
-*/
