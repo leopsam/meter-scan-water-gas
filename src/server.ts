@@ -1,6 +1,6 @@
-import app, { init, close } from './app';
+import app, { init } from './app';
 
-const port = 4000;
+const port = process.env.PORT;
 
 init().then(() => {
   app.listen(port, () => {
