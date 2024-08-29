@@ -28,3 +28,21 @@ export async function measurePost(
     next(err);
   }
 }
+
+export async function measurePatch(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { measure_uuid, confirmed_value } = req.body;
+
+  try {
+    const ResponseMeasure = await measureService.patchMeasure(
+      measure_uuid,
+      confirmed_value
+    );
+    return res.status(200).send(ResponseMeasure);
+  } catch (err) {
+    next(err);
+  }
+}

@@ -12,7 +12,23 @@ function invalidData() {
   };
 }
 
+function NotFound() {
+  return {
+    code: 'MEASURE_NOT_FOUND',
+    description: 'Leitura não encontrada',
+  };
+}
+
+function confirmationDuplicate() {
+  return {
+    code: 'CONFIRMATION_DUPLICATE',
+    description: 'Leitura do mês já realizada',
+  };
+}
+
 export default {
   doubleReport,
   invalidData,
+  NotFound,
+  confirmationDuplicate,
 };

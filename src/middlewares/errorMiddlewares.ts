@@ -20,6 +20,20 @@ export function handleApplicationErrors(
     });
   }
 
+  if (err.code === 'MEASURE_NOT_FOUND') {
+    return res.status(404).send({
+      error_code: err.code,
+      error_description: err.description,
+    });
+  }
+
+  if (err.code === 'CONFIRMATION_DUPLICATE') {
+    return res.status(409).send({
+      error_code: err.code,
+      error_description: err.description,
+    });
+  }
+
   return res.status(500).send({
     error_code: 'INTERNAL_SERVER_ERROR',
     error_description: 'Erro Interno do Servidor',

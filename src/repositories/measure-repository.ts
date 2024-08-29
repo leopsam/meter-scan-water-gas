@@ -21,7 +21,26 @@ async function findMeasureByData(date: Date) {
   });
 }
 
+async function getMeasureByUuid(uuid: string) {
+  return prisma.measure.findFirst({
+    where: {
+      measure_uuid: uuid,
+    },
+  });
+}
+
+async function updateMeasureValue(id: number, value: number) {
+  return prisma.measure.update({
+    where: { id },
+    data: {
+      measure_value: value,
+    },
+  });
+}
+
 export default {
   createMeasure,
   findMeasureByData,
+  getMeasureByUuid,
+  updateMeasureValue,
 };

@@ -2,6 +2,7 @@ import measureRepositories from './../repositories/measure-repository';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { v4 as uuidv4 } from 'uuid';
 import errors from '../errors/index';
+import { response } from 'express';
 
 const API_KEY = process.env.GEMINI_API_KEY as string;
 
@@ -69,6 +70,26 @@ export async function createMeasure(
   return ResponseMeasure;
 }
 
+export async function patchMeasure(
+  measure_uuid: string,
+  confirmed_value: Number
+) {
+  const measure = await measureRepositories.getMeasureByUuid(measure_uuid);
+  if (!measure) throw errors.NotFound();
+
+  if (confirmed_value == measure.measure_value)
+    throw errors.confirmationDuplicate();
+
+  await measureRepositories.updateMeasureValue(
+    measure.id,
+    Number(confirmed_value)
+  );
+  const reult = { success: true };
+
+  return reult;
+}
+
 export default {
   createMeasure,
+  patchMeasure,
 };
