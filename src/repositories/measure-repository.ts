@@ -34,7 +34,20 @@ async function updateMeasureValue(id: number, value: number) {
     where: { id },
     data: {
       measure_value: value,
+      has_confirmed: true,
     },
+  });
+}
+
+async function getMeasuresByCustomer(code: string) {
+  return prisma.measure.findMany({
+    where: { customer_code: code },
+  });
+}
+
+async function getMeasuresByCustomerAndType(code: string, type: string) {
+  return prisma.measure.findMany({
+    where: { customer_code: code, measure_type: type },
   });
 }
 
@@ -43,4 +56,6 @@ export default {
   findMeasureByData,
   getMeasureByUuid,
   updateMeasureValue,
+  getMeasuresByCustomer,
+  getMeasuresByCustomerAndType,
 };

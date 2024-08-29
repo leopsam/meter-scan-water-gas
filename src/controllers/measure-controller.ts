@@ -46,3 +46,22 @@ export async function measurePatch(
     next(err);
   }
 }
+
+export async function measureGet(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { customer_code } = req.params;
+  const { measure_type } = req.query;
+
+  try {
+    const ResponseMeasure = await measureService.getCustomer(
+      customer_code,
+      measure_type
+    );
+    return res.status(200).send(ResponseMeasure);
+  } catch (err) {
+    next(err);
+  }
+}

@@ -1,28 +1,35 @@
-function doubleReport() {
+function doubleReport(message: string) {
   return {
     code: 'DOUBLE_REPORT',
-    description: 'Leitura do mês já realizada',
+    description: message,
   };
 }
 
-function invalidData() {
+function invalidData(message: string) {
   return {
     code: 'INVALID_DATA',
-    description: 'Os dados fornecidos no corpo da requisição são inválidos',
+    description: message,
   };
 }
 
-function NotFound() {
+function NotFound(message: string) {
   return {
     code: 'MEASURE_NOT_FOUND',
-    description: 'Leitura não encontrada',
+    description: message,
   };
 }
 
-function confirmationDuplicate() {
+function confirmationDuplicate(message: string) {
   return {
     code: 'CONFIRMATION_DUPLICATE',
-    description: 'Leitura do mês já realizada',
+    description: message,
+  };
+}
+
+function invalidType(message: string) {
+  return {
+    code: 'INVALID_TYPE',
+    description: message,
   };
 }
 
@@ -31,4 +38,5 @@ export default {
   invalidData,
   NotFound,
   confirmationDuplicate,
+  invalidType,
 };

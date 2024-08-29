@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "lint": "eslint --fix",
     "format": "prettier --write .",
-    "precommit": "eslint --fix . && prettier --write ."
+    "precommit": "eslint --fix && prettier --write ."
   },
   "keywords": [],
   "author": "",
