@@ -1,8 +1,10 @@
 import measureRepositories from './../repositories/measure-repository';
+import { GoogleAIFileManager } from '@google/generative-ai/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { v4 as uuidv4 } from 'uuid';
 import errors from '../errors/index';
-import { Measure } from '../types/measure-type';
+import fs from 'fs';
+import path from 'path';
 
 const API_KEY = process.env.GEMINI_API_KEY as string;
 
@@ -15,7 +17,14 @@ export async function createMeasure(
   measure_datetime: Date,
   measure_type: string
 ) {
-  const mimeType = 'image/jpeg';
+  if (typeof measure_datetime === 'string')
+    measure_datetime = new Date(measure_datetime);
+
+  const dataMeasure =
+    await measureRepositories.findMeasureByData(measure_datetime);
+
+  if (dataMeasure?.measure_datetime.getMonth() === measure_datetime.getMonth())
+    throw errors.doubleReport('Leitura do mês já realizada');
 
   function base64ToGenerativePart(base64Image: string, mimeType: string) {
     return {
@@ -26,7 +35,8 @@ export async function createMeasure(
     };
   }
 
-  const imagePart = base64ToGenerativePart(image, mimeType);
+  const imagePart = base64ToGenerativePart(image, 'image/jpeg');
+
   const prompt = 'What number is present in this image?';
   const result = await model.generateContent([prompt, imagePart]);
 
@@ -37,28 +47,45 @@ export async function createMeasure(
 
   const numberResult = extractTextNumber(result.response.text());
 
-  const dataUrl = `data:image/png;base64,${image}`;
+  const outputPath = path.join(__dirname, './../output', 'imagem.jpg');
 
-  const has_confirmed = false;
+  async function saveBase64Image(base64String: string, outputPath: string) {
+    const base64Data = base64String.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+    fs.writeFileSync(outputPath, buffer);
+  }
+
+  await saveBase64Image(image, outputPath);
+
+  const fileManager = new GoogleAIFileManager(API_KEY);
+
+  const uploadResponse = await fileManager.uploadFile(
+    './src/output/imagem.jpg',
+    {
+      mimeType: 'image/jpeg',
+      displayName: 'Jetpack drawing',
+    }
+  );
+
+  const url = uploadResponse.file.uri;
+
+  async function deleteFile(filePath: string) {
+    fs.unlink(filePath, (err) => {
+      if (err) console.error(`Erro ao excluir o arquivo ${filePath}:`, err);
+    });
+  }
+
+  await deleteFile(outputPath);
 
   const measureData = {
-    image_url: dataUrl,
+    image_url: url,
     customer_code,
     measure_datetime,
     measure_type,
-    has_confirmed,
+    has_confirmed: true,
     measure_value: Number(numberResult),
     measure_uuid: uuidv4(),
   };
-
-  if (typeof measure_datetime === 'string')
-    measure_datetime = new Date(measure_datetime);
-
-  const dataMeasure =
-    await measureRepositories.findMeasureByData(measure_datetime);
-
-  if (dataMeasure?.measure_datetime.getMonth() === measure_datetime.getMonth())
-    throw errors.doubleReport('Leitura do mês já realizada');
 
   const createMeasure = await measureRepositories.createMeasure({
     ...measureData,
