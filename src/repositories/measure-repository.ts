@@ -7,18 +7,8 @@ async function createMeasure(data: Measure) {
   });
 }
 
-async function findMeasureByData(date: Date) {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-
-  return await prisma.measure.findFirst({
-    where: {
-      measure_datetime: {
-        gte: new Date(year, month - 1, 1),
-        lt: new Date(year, month, 1),
-      },
-    },
-  });
+async function getAllMeasures() {
+  return await prisma.measure.findMany();
 }
 
 async function getMeasureByUuid(uuid: string) {
@@ -53,9 +43,9 @@ async function getMeasuresByCustomerAndType(code: string, type: string) {
 
 export default {
   createMeasure,
-  findMeasureByData,
   getMeasureByUuid,
   updateMeasureValue,
   getMeasuresByCustomer,
   getMeasuresByCustomerAndType,
+  getAllMeasures,
 };

@@ -20,11 +20,20 @@ export async function createMeasure(
   if (typeof measure_datetime === 'string')
     measure_datetime = new Date(measure_datetime);
 
-  const dataMeasure =
-    await measureRepositories.findMeasureByData(measure_datetime);
+  const dataAllMeasure = await measureRepositories.getAllMeasures();
 
-  if (dataMeasure?.measure_datetime.getMonth() === measure_datetime.getMonth())
-    throw errors.doubleReport('Leitura do mês já realizada');
+  const dateBody = new Date(measure_datetime);
+  const monthBody = dateBody.getMonth() + 1;
+
+  for (const measure of dataAllMeasure) {
+    if (
+      measure.measure_type === measure_type &&
+      measure.customer_code === customer_code &&
+      measure.measure_datetime.getMonth() + 1 === monthBody
+    ) {
+      throw errors.doubleReport('Leitura do mês já realizada');
+    }
+  }
 
   function base64ToGenerativePart(base64Image: string, mimeType: string) {
     return {
@@ -82,7 +91,7 @@ export async function createMeasure(
     customer_code,
     measure_datetime,
     measure_type,
-    has_confirmed: true,
+    has_confirmed: false,
     measure_value: Number(numberResult),
     measure_uuid: uuidv4(),
   };
@@ -105,19 +114,17 @@ export async function patchMeasure(
   confirmed_value: number
 ) {
   const measure = await measureRepositories.getMeasureByUuid(measure_uuid);
-  if (!measure) throw errors.NotFound('Leitura do mês já realizada');
+  if (!measure) throw errors.NotFound('Leitura não encontrada');
 
-  if (confirmed_value == measure.measure_value)
+  if (measure.has_confirmed === true)
     throw errors.confirmationDuplicate('Leitura do mês já realizada');
 
-  const measureConfirmed = await measureRepositories.updateMeasureValue(
+  await measureRepositories.updateMeasureValue(
     measure.id,
     Number(confirmed_value)
   );
 
-  const reult = { success: measureConfirmed.has_confirmed };
-
-  return reult;
+  return { success: true };
 }
 
 export async function getCustomer(customer_code: string, measure_type: any) {
