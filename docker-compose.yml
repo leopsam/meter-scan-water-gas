@@ -1,24 +1,19 @@
 services:
-  db:
+  postgres:
     image: postgres
-    container_name: db
+    container_name: postgres
     restart: always
     ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: meterscanwatergas
-    volumes:
-      - postgres-volume:/var/lib/postgresql/data
+      - 5433:5432
+    env_file:
+      - .env
 
-  node_app:
-    container_name: node_app
+  api:
+    container_name: api
     build: .
     ports:
-      - 4000:4000    
-    environment:
-      DATABASE_URL: "postgresql://postgres:postgres@db:5432/meterscanwatergas"
-
-volumes:
-  postgres-volume:
+      - 4000:4000
+    env_file:
+      - .env
+    depends_on:
+      - postgres

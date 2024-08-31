@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import errors from '../errors/index';
 import fs from 'fs';
 import path from 'path';
+import { Buffer } from 'buffer';
 
 const API_KEY = process.env.GEMINI_API_KEY as string;
 
@@ -56,35 +57,24 @@ export async function createMeasure(
 
   const numberResult = extractTextNumber(result.response.text());
 
-  const outputPath = path.join(__dirname, './../output', 'imagem.jpg');
+  const tempFilePath = path.join('/tmp', 'image.jpeg');
 
-  async function saveBase64Image(base64String: string, outputPath: string) {
+  async function saveBase64Image(base64String: string) {
     const base64Data = base64String.replace(/^data:image\/\w+;base64,/, '');
-    const buffer = Buffer.from(base64Data, 'base64');
-    fs.writeFileSync(outputPath, buffer);
+    const binaryData = Buffer.from(base64Data, 'base64');
+
+    fs.writeFileSync(tempFilePath, binaryData);
   }
 
-  await saveBase64Image(image, outputPath);
+  await saveBase64Image(image);
 
   const fileManager = new GoogleAIFileManager(API_KEY);
-
-  const uploadResponse = await fileManager.uploadFile(
-    './src/output/imagem.jpg',
-    {
-      mimeType: 'image/jpeg',
-      displayName: 'Jetpack drawing',
-    }
-  );
+  const uploadResponse = await fileManager.uploadFile(tempFilePath, {
+    mimeType: 'image/jpeg',
+    displayName: 'measurement record',
+  });
 
   const url = uploadResponse.file.uri;
-
-  async function deleteFile(filePath: string) {
-    fs.unlink(filePath, (err) => {
-      if (err) console.error(`Erro ao excluir o arquivo ${filePath}:`, err);
-    });
-  }
-
-  await deleteFile(outputPath);
 
   const measureData = {
     image_url: url,

@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "start": "npm run prisma:migrate:deploy && node dist/server.js",
+    "build": "tsc",
+    "start": "npm run prisma:migrate:dev & node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
-    "prisma:migrate:dev": "prisma migrate dev",
-    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:dev": "npx prisma migrate dev",
     "lint": "eslint --fix",
     "format": "prettier --write .",
     "precommit": "eslint --fix && prettier --write ."
@@ -37,11 +36,13 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.17.1",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "dotenv-expand": "^11.0.6",
     "express": "^4.19.2",
     "express-async-errors": "^3.1.1",
+    "form-data": "^4.0.0",
     "joi": "^17.13.3",
     "reflect-metadata": "^0.2.2",
     "uuid": "^10.0.0"
